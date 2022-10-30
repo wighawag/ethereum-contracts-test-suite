@@ -37,6 +37,7 @@ export type ERC721FinalFixture = {
 
 export type ERC721Options = {
   burn?: boolean;
+  ownedByAll?: boolean;
 };
 
 export const erc721 = new TestSuite<
@@ -49,7 +50,11 @@ export const erc721 = new TestSuite<
 
     const contract = new Contract(contractAddress, erc721ABI, ethersProvider);
 
-    const usersWithContracts = [];
+    const usersWithContracts: {
+      address: string;
+      contract: Contract;
+      initialBalance: BigNumber;
+    }[] = [];
     for (const user of users) {
       usersWithContracts.push({
         address: user,
@@ -121,24 +126,43 @@ export const erc721 = new TestSuite<
         await expect(contract.callStatic.balanceOf(AddressZero)).to.be.reverted;
       });
 
-      it('tx ownerOf a non existing NFT fails', async function ({users}) {
-        await expect(users[0].contract.ownerOf(1000000000)).to.be.reverted;
-      });
+      if (!options.ownedByAll) {
+        it('tx ownerOf a non existing NFT fails', async function ({users}) {
+          await expect(users[0].contract.ownerOf(1000000000)).to.be.reverted;
+        });
+      } else {
+        // TODO
+      }
 
-      it('call ownerOf a non existing NFT fails', async function ({contract}) {
-        await expect(contract.callStatic.ownerOf(1000000000)).to.be.reverted;
-      });
+      if (!options.ownedByAll) {
+        it('call ownerOf a non existing NFT fails', async function ({
+          contract,
+        }) {
+          await expect(contract.callStatic.ownerOf(1000000000)).to.be.reverted;
+        });
+      } else {
+        // TODO
+      }
 
-      it('tx getApproved a non existing NFT fails', async function ({users}) {
-        await expect(users[0].contract.getApproved(1000000000)).to.be.reverted;
-      });
+      if (!options.ownedByAll) {
+        it('tx getApproved a non existing NFT fails', async function ({users}) {
+          await expect(users[0].contract.getApproved(1000000000)).to.be
+            .reverted;
+        });
+      } else {
+        // TODO
+      }
 
-      it('call getApproved a non existing NFT fails', async function ({
-        contract,
-      }) {
-        await expect(contract.callStatic.getApproved(1000000000)).to.be
-          .reverted;
-      });
+      if (!options.ownedByAll) {
+        it('call getApproved a non existing NFT fails', async function ({
+          contract,
+        }) {
+          await expect(contract.callStatic.getApproved(1000000000)).to.be
+            .reverted;
+        });
+      } else {
+        // TODO
+      }
 
       // not technically required by erc721 standard //////////////////////////////////////////////
       // it('call isApprovedForAll for a zero address as owner fails', async () => {
@@ -169,7 +193,7 @@ export const erc721 = new TestSuite<
     describe('balance', function (it) {
       it('balance is zero for new user', async function ({contract, users}) {
         const balance = await contract.callStatic.balanceOf(users[0].address);
-        assert.equal(balance.toNumber(), 0);
+        assert.equal(balance.toNumber(), options.ownedByAll ? 1 : 0);
       });
 
       it('balance return correct value', async function ({
@@ -177,8 +201,9 @@ export const erc721 = new TestSuite<
         users,
         mint,
       }) {
+        const extra = options.ownedByAll ? 1 : 0;
         const balance = await contract.callStatic.balanceOf(users[0].address);
-        assert.equal(balance.toNumber(), 0);
+        assert.equal(balance.toNumber(), 0 + extra);
 
         const {tokenId: tokenId1} = await mint(users[1].address);
         const {tokenId: tokenId2} = await mint(users[1].address);
@@ -190,7 +215,7 @@ export const erc721 = new TestSuite<
           )
         );
         let newBalance = await contract.callStatic.balanceOf(users[0].address);
-        assert.equal(newBalance.toNumber(), 1);
+        assert.equal(newBalance.toNumber(), 1 + extra);
         await waitFor(
           users[1].contract.transferFrom(
             users[1].address,
@@ -199,7 +224,7 @@ export const erc721 = new TestSuite<
           )
         );
         newBalance = await contract.callStatic.balanceOf(users[0].address);
-        assert.equal(newBalance.toNumber(), 2);
+        assert.equal(newBalance.toNumber(), 2 + extra);
 
         await waitFor(
           users[0].contract.transferFrom(
@@ -209,32 +234,39 @@ export const erc721 = new TestSuite<
           )
         );
         newBalance = await contract.callStatic.balanceOf(users[0].address);
-        assert.equal(newBalance.toNumber(), 1);
+        assert.equal(newBalance.toNumber(), 1 + extra);
       });
     });
 
     describe('mint', function (it) {
-      it('mint result in a transfer from 0 event', async function ({
-        contract,
-        mint,
-        users,
-        ethersProvider,
-      }) {
-        const {hash, tokenId} = await mint(users[0].address);
-        const receipt = await ethersProvider.getTransactionReceipt(hash);
-        const eventsMatching = await contract.queryFilter(
-          contract.filters.Transfer(),
-          receipt.blockNumber
-        );
-        assert.equal(eventsMatching.length, 1);
-        const transferEvent = eventsMatching[0];
-        assert.equal(transferEvent.args && transferEvent.args[0], AddressZero);
-        assert.equal(
-          transferEvent.args && transferEvent.args[1],
-          users[0].address
-        );
-        assert(transferEvent.args && transferEvent.args[2].eq(tokenId));
-      });
+      if (!options.ownedByAll) {
+        it('mint result in a transfer from 0 event', async function ({
+          contract,
+          mint,
+          users,
+          ethersProvider,
+        }) {
+          const {hash, tokenId} = await mint(users[0].address);
+          const receipt = await ethersProvider.getTransactionReceipt(hash);
+          const eventsMatching = await contract.queryFilter(
+            contract.filters.Transfer(),
+            receipt.blockNumber
+          );
+          assert.equal(eventsMatching.length, 1);
+          const transferEvent = eventsMatching[0];
+          assert.equal(
+            transferEvent.args && transferEvent.args[0],
+            AddressZero
+          );
+          assert.equal(
+            transferEvent.args && transferEvent.args[1],
+            users[0].address
+          );
+          assert(transferEvent.args && transferEvent.args[2].eq(tokenId));
+        });
+      } else {
+        // TODO
+      }
 
       it('mint for gives correct owner', async function ({
         contract,
