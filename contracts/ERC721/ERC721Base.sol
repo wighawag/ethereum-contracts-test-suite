@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.1;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 // import "@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol"; // only partially implemented for efficiency and simplicity
-import "@openzeppelin/contracts/introspection/IERC165.sol";
-import "@openzeppelin/contracts/utils/EnumerableSet.sol";
+import "@openzeppelin/contracts/interfaces/IERC165.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./EnumerableMap.sol";
 
 abstract contract ERC721Base is IERC165, IERC721 {
@@ -165,7 +165,7 @@ abstract contract ERC721Base is IERC165, IERC721 {
     ) internal {
         _holderTokens[from].remove(id);
         _holderTokens[to].add(id);
-        _owners[id] = uint256(to);
+        _owners[id] = uint256(uint160(to));
         emit Transfer(from, to, id);
     }
 
@@ -176,9 +176,9 @@ abstract contract ERC721Base is IERC165, IERC721 {
         uint256 id
     ) internal {
         if (operator == address(0)) {
-            _owners[id] = uint256(owner);
+            _owners[id] = uint256(uint160(owner));
         } else {
-            _owners[id] = OPERATOR_FLAG | uint256(owner);
+            _owners[id] = OPERATOR_FLAG | uint256(uint160(owner));
             _operators[id] = operator;
         }
         emit Approval(owner, operator, id);
@@ -215,7 +215,7 @@ abstract contract ERC721Base is IERC165, IERC721 {
 
     /// @dev See ownerOf
     function _ownerOf(uint256 id) internal view returns (address owner) {
-        owner = address(_owners[id]);
+        owner = address(uint160(_owners[id]));
         require(owner != address(0), "NOT_EXIST");
     }
 
@@ -225,7 +225,7 @@ abstract contract ERC721Base is IERC165, IERC721 {
     /// @return operatorEnabled Whether or not operators are enabled for this token.
     function _ownerAndOperatorEnabledOf(uint256 id) internal view returns (address owner, bool operatorEnabled) {
         uint256 data = _owners[id];
-        owner = address(data);
+        owner = address(uint160(data));
         operatorEnabled = (data & OPERATOR_FLAG) == OPERATOR_FLAG;
     }
 
@@ -234,7 +234,7 @@ abstract contract ERC721Base is IERC165, IERC721 {
         uint256 data = _owners[id];
         require(data == 0, "ALREADY_MINTED");
         _holderTokens[to].add(id);
-        _owners[id] = uint256(to);
+        _owners[id] = uint256(uint160(to));
         _supply++;
         emit Transfer(address(0), to, id);
     }
@@ -243,7 +243,7 @@ abstract contract ERC721Base is IERC165, IERC721 {
         uint256 data = _owners[id];
         require(data != 0, "NOT_EXIST");
         require(data & BURN_FLAG == 0, "ALREADY BURNT");
-        address owner = address(data);
+        address owner = address(uint160(data));
         require(msg.sender == owner, "NOT_OWNER");
         _holderTokens[owner].remove(id);
         _owners[id] = BURN_FLAG;

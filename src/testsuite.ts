@@ -21,19 +21,27 @@ export type TestSuiteFunc<T, U> = (config: {
   options: U;
 }) => void;
 
-function recurse(test: TestToRun) {
+export function recurse(test: TestToRun, {describe,it}: {describe: (msg: string, func: () => void) => void, it: (msg: string, func: () => (Promise<void> | void)) => (Promise<void> | void)}) {
   if (test.subTests) {
     describe(test.title, function () {
       if (test.subTests) {
         for (const subTest of test.subTests) {
-          recurse(subTest);
+          recurse(subTest, {describe, it});
         }
       }
     });
-  } else {
+  } else if (test.test){
     it(test.title, test.test);
   }
 }
+
+
+export function runtests(tests: TestToRun[], {describe,it}: {describe: (msg: string, func: () => void) => void, it: (msg: string, func: () => (Promise<void> | void)) => (Promise<void> | void)}) {
+  for (const test of tests) {
+    recurse(test, {describe, it});
+  }
+}
+
 
 export class TestSuite<
   Fixture,
@@ -129,32 +137,5 @@ export class TestSuite<
     this.func({describe, it, options: actualOptions});
 
     return tests;
-  }
-
-  runMochaTests(
-    title: string,
-    options: Options,
-    fixture: () => Promise<Fixture>
-  ): void;
-  runMochaTests(
-    title: string,
-    options: Options | (() => Promise<Fixture>),
-    fixture?: () => Promise<Fixture>
-  ): void {
-    let actualFixture: () => Promise<Fixture>;
-    let actualOptions: Options = {} as Options;
-    if (typeof options === 'object') {
-      actualOptions = {...options};
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      actualFixture = fixture as any;
-    } else {
-      actualFixture = options;
-    }
-    const tests = this.generateTests(actualOptions, actualFixture);
-    describe(title, function () {
-      for (const test of tests) {
-        recurse(test);
-      }
-    });
   }
 }

@@ -1,17 +1,20 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
-  const {deploy} = deployments;
+import {execute} from 'rocketh';
+import 'rocketh-deploy';
+import {context} from './_context';
+import {parseEther} from 'ethers';
 
-  const {deployer} = await getNamedAccounts();
+export default execute(
+	context,
+	async ({deploy, accounts, artifacts}) => {
+		const contract = await deploy(
+			'SimpleERC721',
+			{
+				account: accounts.deployer,
+				artifact: artifacts.SimpleERC721
+			}
+		);
+	},
+	{tags: ['SimpleERC721', 'SimpleERC721_deploy']}
+);
 
-  await deploy('SimpleERC721', {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-};
-export default func;
-func.tags = ['SimpleERC721'];

@@ -1,8 +1,17 @@
-export/
-deployments/
-artifacts/
-cache/
-coverage/
-node_modules/
+############################################
+# .gitignore
+#############################################
+node_modules
+cache
+artifacts
+.vscode/*
+!*.default
+generated
+deployments/localhost
+
+*.local
+
+/coverage
+/coverage.json
+#############################################
 package.json
-typechain/

@@ -1,18 +1,21 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
-import {parseEther} from 'ethers/lib/utils';
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts} = hre;
-  const {deploy} = deployments;
+import {execute} from 'rocketh';
+import 'rocketh-deploy';
+import {context} from './_context';
+import {parseEther} from 'ethers';
 
-  const {deployer, simpleERC20Beneficiary} = await getNamedAccounts();
+export default execute(
+	context,
+	async ({deploy, accounts, artifacts}) => {
+		const contract = await deploy(
+			'SimpleERC20',
+			{
+				account: accounts.deployer,
+				artifact: artifacts.SimpleERC20,
+				args: [accounts.tokensBeneficiary, parseEther('1000000000')],
+			}
+		);
+	},
+	{tags: ['SimpleERC20', 'SimpleERC20_deploy']}
+);
 
-  await deploy('SimpleERC20', {
-    from: deployer,
-    args: [simpleERC20Beneficiary, parseEther('1000000000')],
-    log: true,
-  });
-};
-export default func;
-func.tags = ['SimpleERC20'];

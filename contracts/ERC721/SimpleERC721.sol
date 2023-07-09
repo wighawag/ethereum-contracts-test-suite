@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.1;
+pragma solidity ^0.8.0;
 
 import "./ERC721Base.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Metadata.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 contract SimpleERC721 is ERC721Base, IERC721Metadata {
     /// @notice A descriptive name for a collection of NFTs in this contract
