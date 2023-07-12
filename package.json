@@ -12,7 +12,6 @@
     "testing"
   ],
   "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.1",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.2",
     "as-soon": "^0.0.4",
