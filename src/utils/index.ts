@@ -38,5 +38,5 @@ export async function waitFor(
 	p: Promise<TransactionResponse | ContractTransactionResponse>,
 ): Promise<ContractTransactionReceipt | TransactionReceipt | null> {
 	const tx = await p;
-	return tx.wait();
+	return tx.wait(Number.MIN_SAFE_INTEGER); // to make it work with hardhat auto-mine
 }

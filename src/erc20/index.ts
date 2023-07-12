@@ -167,7 +167,7 @@ export const erc20 = new TestSuite<ERC20Fixture, {burn?: boolean; EIP717?: boole
 				await waitFor(userWithToken.contract.approve(operator.address, amountApproved));
 				await waitFor(operator.contract.transferFrom(userWithToken.address, users[0].address, amount));
 				const allowance = await contract.allowance.staticCall(userWithToken.address, operator.address);
-				assert.equal(allowance.toString(16), '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+				assert.equal(allowance.toString(16), 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 			});
 		} else {
 			it('transfering from userWithToken to users[0] by operator after max approval (2**256-1), should still adjust the operator allowance', async function ({
@@ -234,7 +234,7 @@ export const erc20 = new TestSuite<ERC20Fixture, {burn?: boolean; EIP717?: boole
 		});
 
 		if (options?.burn) {
-			describe('burn', function () {
+			describe('burn', function (it) {
 				it('burn should emit erc20 transfer event to zero address', async function ({userWithToken}) {
 					const receipt = await waitFor(userWithToken.contract.burn('1000'));
 					const event = receipt?.logs?.find((e) => 'fragment' in e && e.fragment.name == 'Transfer');

@@ -37,7 +37,7 @@ async function setupSimpleERC20() {
 	};
 }
 
-const tests = erc20.generateTests(setupSimpleERC20);
+const tests = erc20.generateTests({burn: true, EIP717: true}, setupSimpleERC20);
 
 describe('SimpleERC20', function () {
 	runtests(tests, {describe, it});
