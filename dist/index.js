@@ -15764,6 +15764,31 @@ var erc20_abi_default = [
 ];
 
 // src/testsuite.ts
+function recurse(test, {
+  describe,
+  it
+}) {
+  if (test.subTests) {
+    describe(test.title, function() {
+      if (test.subTests) {
+        for (const subTest of test.subTests) {
+          recurse(subTest, { describe, it });
+        }
+      }
+    });
+  }
+  if (test.test) {
+    it(test.title, test.test);
+  }
+}
+function runtests(tests, {
+  describe,
+  it
+}) {
+  for (const test of tests) {
+    recurse(test, { describe, it });
+  }
+}
 var TestSuite = class {
   constructor(transform, func) {
     if (func) {
@@ -17381,8 +17406,11 @@ var erc721 = new TestSuite(
   }
 );
 export {
+  TestSuite,
   erc20,
-  erc721
+  erc721,
+  recurse,
+  runtests
 };
 /*! Bundled license information:
 

@@ -1,5 +1,10 @@
 import { BrowserProvider } from 'ethers';
 
+type Test<FinalFixture> = {
+    title: string;
+    subTests?: Test<FinalFixture>[];
+    test?: (fixture: FinalFixture) => Promise<void>;
+};
 type TestToRun = {
     title: string;
     subTests?: TestToRun[];
@@ -10,6 +15,14 @@ type TestSuiteFunc<T, U> = (config: {
     it(title: string, test: (obj: T) => Promise<void>): void;
     options: U;
 }) => void;
+declare function recurse(test: TestToRun, { describe, it, }: {
+    describe: (msg: string, func: () => void) => void;
+    it: (msg: string, func: () => Promise<void> | void) => Promise<void> | void;
+}): void;
+declare function runtests(tests: TestToRun[], { describe, it, }: {
+    describe: (msg: string, func: () => void) => void;
+    it: (msg: string, func: () => Promise<void> | void) => Promise<void> | void;
+}): void;
 declare class TestSuite<Fixture, Options extends Record<string, unknown>, FinalFixture> {
     private func;
     private transform;
@@ -71,4 +84,4 @@ type ERC721Options = {
 };
 declare const erc721: TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFixture>;
 
-export { ERC20FinalFixture, ERC721FinalFixture, ERC721Options, ERC721User, User, erc20, erc721 };
+export { ERC20FinalFixture, ERC721FinalFixture, ERC721Options, ERC721User, Test, TestSuite, TestSuiteFunc, TestToRun, User, erc20, erc721, recurse, runtests };

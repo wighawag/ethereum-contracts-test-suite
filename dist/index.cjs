@@ -79,8 +79,11 @@ var require_chai_setup = __commonJS({
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  TestSuite: () => TestSuite,
   erc20: () => erc20,
-  erc721: () => erc721
+  erc721: () => erc721,
+  recurse: () => recurse,
+  runtests: () => runtests
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -15778,6 +15781,31 @@ var erc20_abi_default = [
 ];
 
 // src/testsuite.ts
+function recurse(test, {
+  describe,
+  it
+}) {
+  if (test.subTests) {
+    describe(test.title, function() {
+      if (test.subTests) {
+        for (const subTest of test.subTests) {
+          recurse(subTest, { describe, it });
+        }
+      }
+    });
+  }
+  if (test.test) {
+    it(test.title, test.test);
+  }
+}
+function runtests(tests, {
+  describe,
+  it
+}) {
+  for (const test of tests) {
+    recurse(test, { describe, it });
+  }
+}
 var TestSuite = class {
   constructor(transform, func) {
     if (func) {
@@ -17396,8 +17424,11 @@ var erc721 = new TestSuite(
 );
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  TestSuite,
   erc20,
-  erc721
+  erc721,
+  recurse,
+  runtests
 });
 /*! Bundled license information:
 

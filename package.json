@@ -1,6 +1,6 @@
 {
   "name": "ethereum-contracts-test-suite",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Generic Tests For Ethereum Smart Contracts",
   "repository": "github:wighawag/ethereum-contracts-test-suite",
   "author": "wighawag",
