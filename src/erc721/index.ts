@@ -590,21 +590,23 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 				assert.equal(newOwner, users[0].address);
 			});
 
-			it('transfering one NFT increase new owner balance', async function ({contract, users, mint}) {
-				const {tokenId} = await mint(users[1].address);
-				const balanceBefore = await contract.balanceOf.staticCall(users[0].address);
-				await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId));
-				const balanceAfter = await contract.balanceOf.staticCall(users[0].address);
-				assert(balanceBefore + 1n == balanceAfter);
-			});
+			if (!options.skipBalanceTests) {
+				it('transfering one NFT increase new owner balance', async function ({contract, users, mint}) {
+					const {tokenId} = await mint(users[1].address);
+					const balanceBefore = await contract.balanceOf.staticCall(users[0].address);
+					await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId));
+					const balanceAfter = await contract.balanceOf.staticCall(users[0].address);
+					assert(balanceBefore + 1n == balanceAfter);
+				});
 
-			it('transfering one NFT decrease past owner balance', async function ({contract, users, mint}) {
-				const {tokenId} = await mint(users[1].address);
-				const balanceBefore = await contract.balanceOf.staticCall(users[1].address);
-				await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId));
-				const balanceAfter = await contract.balanceOf.staticCall(users[1].address);
-				assert(balanceBefore - 1n === balanceAfter);
-			});
+				it('transfering one NFT decrease past owner balance', async function ({contract, users, mint}) {
+					const {tokenId} = await mint(users[1].address);
+					const balanceBefore = await contract.balanceOf.staticCall(users[1].address);
+					await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId));
+					const balanceAfter = await contract.balanceOf.staticCall(users[1].address);
+					assert(balanceBefore - 1n === balanceAfter);
+				});
+			}
 
 			it('transfering from without approval should fails', async function ({users, mint}) {
 				const {tokenId} = await mint(users[1].address);
