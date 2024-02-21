@@ -31,6 +31,7 @@ export type ERC721FinalFixture = {
 export type ERC721Options = {
 	burn?: boolean;
 	ownedByAll?: boolean;
+	skipBalanceTests?: boolean;
 };
 
 export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFixture>(
@@ -159,31 +160,33 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 			// });
 			// ///////////////////////////////////////////////////////////////////////////////////////////////
 		});
-		describe('balance', function (it) {
-			it('balance is zero for new user', async function ({contract, users}) {
-				const balance = await contract.balanceOf.staticCall(users[0].address);
-				assert.equal(balance, options.ownedByAll ? 1n : 0n);
+		if (!options.skipBalanceTests) {
+			describe('balance', function (it) {
+				it('balance is zero for new user', async function ({contract, users}) {
+					const balance = await contract.balanceOf.staticCall(users[0].address);
+					assert.equal(balance, options.ownedByAll ? 1n : 0n);
+				});
+
+				it('balance return correct value', async function ({contract, users, mint}) {
+					const extra = options.ownedByAll ? 1n : 0n;
+					const balance = await contract.balanceOf.staticCall(users[0].address);
+					assert.equal(balance, 0n + extra);
+
+					const {tokenId: tokenId1} = await mint(users[1].address);
+					const {tokenId: tokenId2} = await mint(users[1].address);
+					await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId1));
+					let newBalance = await contract.balanceOf.staticCall(users[0].address);
+					assert.equal(newBalance, 1n + extra);
+					await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId2));
+					newBalance = await contract.balanceOf.staticCall(users[0].address);
+					assert.equal(newBalance, 2n + extra);
+
+					await waitFor(users[0].contract.transferFrom(users[0].address, users[2].address, tokenId1));
+					newBalance = await contract.balanceOf.staticCall(users[0].address);
+					assert.equal(newBalance, 1n + extra);
+				});
 			});
-
-			it('balance return correct value', async function ({contract, users, mint}) {
-				const extra = options.ownedByAll ? 1n : 0n;
-				const balance = await contract.balanceOf.staticCall(users[0].address);
-				assert.equal(balance, 0n + extra);
-
-				const {tokenId: tokenId1} = await mint(users[1].address);
-				const {tokenId: tokenId2} = await mint(users[1].address);
-				await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId1));
-				let newBalance = await contract.balanceOf.staticCall(users[0].address);
-				assert.equal(newBalance, 1n + extra);
-				await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId2));
-				newBalance = await contract.balanceOf.staticCall(users[0].address);
-				assert.equal(newBalance, 2n + extra);
-
-				await waitFor(users[0].contract.transferFrom(users[0].address, users[2].address, tokenId1));
-				newBalance = await contract.balanceOf.staticCall(users[0].address);
-				assert.equal(newBalance, 1n + extra);
-			});
-		});
+		}
 
 		describe('mint', function (it) {
 			if (!options.ownedByAll) {

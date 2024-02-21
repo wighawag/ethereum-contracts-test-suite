@@ -81,6 +81,7 @@ type ERC721FinalFixture = {
 type ERC721Options = {
     burn?: boolean;
     ownedByAll?: boolean;
+    skipBalanceTests?: boolean;
 };
 declare const erc721: TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFixture>;
 

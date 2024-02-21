@@ -10862,7 +10862,7 @@ var ContractTransactionResponse = class extends TransactionResponse {
    *  wait until enough confirmations have completed.
    */
   async wait(confirms) {
-    const receipt = await super.wait(confirms);
+    const receipt = await super.wait();
     if (receipt == null) {
       return null;
     }
@@ -16997,28 +16997,30 @@ var erc721 = new TestSuite(
       } else {
       }
     });
-    describe("balance", function(it) {
-      it("balance is zero for new user", async function({ contract, users }) {
-        const balance = await contract.balanceOf.staticCall(users[0].address);
-        import_chai_setup2.assert.equal(balance, options.ownedByAll ? 1n : 0n);
+    if (!options.skipBalanceTests) {
+      describe("balance", function(it) {
+        it("balance is zero for new user", async function({ contract, users }) {
+          const balance = await contract.balanceOf.staticCall(users[0].address);
+          import_chai_setup2.assert.equal(balance, options.ownedByAll ? 1n : 0n);
+        });
+        it("balance return correct value", async function({ contract, users, mint }) {
+          const extra = options.ownedByAll ? 1n : 0n;
+          const balance = await contract.balanceOf.staticCall(users[0].address);
+          import_chai_setup2.assert.equal(balance, 0n + extra);
+          const { tokenId: tokenId1 } = await mint(users[1].address);
+          const { tokenId: tokenId2 } = await mint(users[1].address);
+          await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId1));
+          let newBalance = await contract.balanceOf.staticCall(users[0].address);
+          import_chai_setup2.assert.equal(newBalance, 1n + extra);
+          await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId2));
+          newBalance = await contract.balanceOf.staticCall(users[0].address);
+          import_chai_setup2.assert.equal(newBalance, 2n + extra);
+          await waitFor(users[0].contract.transferFrom(users[0].address, users[2].address, tokenId1));
+          newBalance = await contract.balanceOf.staticCall(users[0].address);
+          import_chai_setup2.assert.equal(newBalance, 1n + extra);
+        });
       });
-      it("balance return correct value", async function({ contract, users, mint }) {
-        const extra = options.ownedByAll ? 1n : 0n;
-        const balance = await contract.balanceOf.staticCall(users[0].address);
-        import_chai_setup2.assert.equal(balance, 0n + extra);
-        const { tokenId: tokenId1 } = await mint(users[1].address);
-        const { tokenId: tokenId2 } = await mint(users[1].address);
-        await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId1));
-        let newBalance = await contract.balanceOf.staticCall(users[0].address);
-        import_chai_setup2.assert.equal(newBalance, 1n + extra);
-        await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId2));
-        newBalance = await contract.balanceOf.staticCall(users[0].address);
-        import_chai_setup2.assert.equal(newBalance, 2n + extra);
-        await waitFor(users[0].contract.transferFrom(users[0].address, users[2].address, tokenId1));
-        newBalance = await contract.balanceOf.staticCall(users[0].address);
-        import_chai_setup2.assert.equal(newBalance, 1n + extra);
-      });
-    });
+    }
     describe("mint", function(it) {
       if (!options.ownedByAll) {
         it("mint result in a transfer from 0 event", async function({ contract, mint, users, ethersProvider }) {
