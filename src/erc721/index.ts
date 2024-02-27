@@ -577,7 +577,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 				const {tokenId} = await mint(users[1].address);
 				const receipt = await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId));
 				const transferEvents = (receipt as any).logs?.filter(
-					(v: any) => v.fragment?.name === 'Transfer' && v.address.toLowerCase() === contract.address.toLowerCase(),
+					(v: any) => v.fragment?.name === 'Transfer' && v.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 				assert.equal(transferEvents && transferEvents.length, 1);
 				const transferEvent = transferEvents && transferEvents[0];
@@ -661,7 +661,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 					const {tokenId} = await mint(users[1].address);
 					const receipt = await safeTransferFrom(users[1].contract, users[1].address, users[0].address, tokenId);
 					const eventsMatching = (receipt as any).logs?.filter(
-						(v: any) => v.fragment.name === 'Transfer' && v.address.toLowerCase() === contract.address.toLowerCase(),
+						(v: any) => v.fragment.name === 'Transfer' && v.address.toLowerCase() === contract.target.toLowerCase(),
 					);
 					assert.equal(eventsMatching && eventsMatching.length, 1);
 					const transferEvent = eventsMatching && eventsMatching[0];
@@ -773,7 +773,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 				const {tokenId} = await mint(users[1].address);
 				const receipt = await waitFor(users[1].contract.approve(users[0].address, tokenId));
 				const eventsMatching = (receipt as any).logs?.filter(
-					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.address.toLowerCase(),
+					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 				assert.equal(eventsMatching && eventsMatching.length, 1);
 				const eventValues = eventsMatching && eventsMatching[0].args;
@@ -787,7 +787,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 				await waitFor(users[1].contract.approve(users[0].address, tokenId));
 				const receipt = await waitFor(users[1].contract.approve(ZeroAddress, tokenId));
 				const eventsMatching = (receipt as any).logs?.filter(
-					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.address.toLowerCase(),
+					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 				assert.equal(eventsMatching && eventsMatching.length, 1);
 				const eventValues = eventsMatching && eventsMatching[0].args;
@@ -854,7 +854,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 				await waitFor(users[1].contract.approve(users[2].address, tokenId));
 				const receipt = await waitFor(users[2].contract.transferFrom(users[1].address, users[0].address, tokenId));
 				const eventsMatching = (receipt as any).logs?.filter(
-					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.address.toLowerCase(),
+					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 				assert.equal(eventsMatching && eventsMatching.length, 0);
 			});
@@ -870,7 +870,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 					users[2].contract['safeTransferFrom(address,address,uint256)'](users[1].address, users[0].address, tokenId),
 				);
 				const eventsMatching = (receipt as any).logs?.filter(
-					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.address.toLowerCase(),
+					(v: any) => v.fragment.name === 'Approval' && v.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 				assert.equal(eventsMatching && eventsMatching.length, 0);
 			});
@@ -925,7 +925,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 					(e) =>
 						'fragment' in e &&
 						e.fragment.name == 'ApprovalForAll' &&
-						e.address.toLowerCase() === contract.address.toLowerCase(),
+						e.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 
 				assert.equal(eventsMatching?.length, 1);
@@ -952,8 +952,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 				await waitFor(users[1].contract.setApprovalForAll(users[0].address, true));
 				const receipt = await waitFor(users[1].contract.setApprovalForAll(users[0].address, false));
 				const eventsMatching = (receipt as any).logs?.filter(
-					(v: any) =>
-						v.fragment.name === 'ApprovalForAll' && v.address.toLowerCase() === contract.address.toLowerCase(),
+					(v: any) => v.fragment.name === 'ApprovalForAll' && v.address.toLowerCase() === contract.target.toLowerCase(),
 				);
 				assert.equal(eventsMatching?.length, 1);
 				const eventValues = eventsMatching && eventsMatching[0].args;

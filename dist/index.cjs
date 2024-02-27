@@ -17075,7 +17075,7 @@ var erc721 = new TestSuite(
         const { tokenId } = await mint(users[1].address);
         const receipt = await waitFor(users[1].contract.transferFrom(users[1].address, users[0].address, tokenId));
         const transferEvents = receipt.logs?.filter(
-          (v) => v.fragment?.name === "Transfer" && v.address.toLowerCase() === contract.address.toLowerCase()
+          (v) => v.fragment?.name === "Transfer" && v.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(transferEvents && transferEvents.length, 1);
         const transferEvent = transferEvents && transferEvents[0];
@@ -17147,7 +17147,7 @@ var erc721 = new TestSuite(
           const { tokenId } = await mint(users[1].address);
           const receipt = await safeTransferFrom(users[1].contract, users[1].address, users[0].address, tokenId);
           const eventsMatching = receipt.logs?.filter(
-            (v) => v.fragment.name === "Transfer" && v.address.toLowerCase() === contract.address.toLowerCase()
+            (v) => v.fragment.name === "Transfer" && v.address.toLowerCase() === contract.target.toLowerCase()
           );
           import_chai_setup2.assert.equal(eventsMatching && eventsMatching.length, 1);
           const transferEvent = eventsMatching && eventsMatching[0];
@@ -17245,7 +17245,7 @@ var erc721 = new TestSuite(
         const { tokenId } = await mint(users[1].address);
         const receipt = await waitFor(users[1].contract.approve(users[0].address, tokenId));
         const eventsMatching = receipt.logs?.filter(
-          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.address.toLowerCase()
+          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(eventsMatching && eventsMatching.length, 1);
         const eventValues = eventsMatching && eventsMatching[0].args;
@@ -17258,7 +17258,7 @@ var erc721 = new TestSuite(
         await waitFor(users[1].contract.approve(users[0].address, tokenId));
         const receipt = await waitFor(users[1].contract.approve(ZeroAddress, tokenId));
         const eventsMatching = receipt.logs?.filter(
-          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.address.toLowerCase()
+          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(eventsMatching && eventsMatching.length, 1);
         const eventValues = eventsMatching && eventsMatching[0].args;
@@ -17318,7 +17318,7 @@ var erc721 = new TestSuite(
         await waitFor(users[1].contract.approve(users[2].address, tokenId));
         const receipt = await waitFor(users[2].contract.transferFrom(users[1].address, users[0].address, tokenId));
         const eventsMatching = receipt.logs?.filter(
-          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.address.toLowerCase()
+          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(eventsMatching && eventsMatching.length, 0);
       });
@@ -17333,7 +17333,7 @@ var erc721 = new TestSuite(
           users[2].contract["safeTransferFrom(address,address,uint256)"](users[1].address, users[0].address, tokenId)
         );
         const eventsMatching = receipt.logs?.filter(
-          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.address.toLowerCase()
+          (v) => v.fragment.name === "Approval" && v.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(eventsMatching && eventsMatching.length, 0);
       });
@@ -17376,7 +17376,7 @@ var erc721 = new TestSuite(
       it("approving all emit ApprovalForAll event", async function({ users, contract }) {
         const receipt = await waitFor(users[1].contract.setApprovalForAll(users[0].address, true));
         const eventsMatching = receipt?.logs?.filter(
-          (e) => "fragment" in e && e.fragment.name == "ApprovalForAll" && e.address.toLowerCase() === contract.address.toLowerCase()
+          (e) => "fragment" in e && e.fragment.name == "ApprovalForAll" && e.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(eventsMatching?.length, 1);
         const eventValues = eventsMatching && eventsMatching[0].args;
@@ -17399,7 +17399,7 @@ var erc721 = new TestSuite(
         await waitFor(users[1].contract.setApprovalForAll(users[0].address, true));
         const receipt = await waitFor(users[1].contract.setApprovalForAll(users[0].address, false));
         const eventsMatching = receipt.logs?.filter(
-          (v) => v.fragment.name === "ApprovalForAll" && v.address.toLowerCase() === contract.address.toLowerCase()
+          (v) => v.fragment.name === "ApprovalForAll" && v.address.toLowerCase() === contract.target.toLowerCase()
         );
         import_chai_setup2.assert.equal(eventsMatching?.length, 1);
         const eventValues = eventsMatching && eventsMatching[0].args;
