@@ -49,8 +49,8 @@ type ERC20FinalFixture = {
     users: User[];
 };
 declare const erc20: TestSuite<ERC20Fixture, {
-    burn?: boolean | undefined;
-    EIP717?: boolean | undefined;
+    burn?: boolean;
+    EIP717?: boolean;
 }, ERC20FinalFixture>;
 
 type ERC721Fixture = {
@@ -85,4 +85,4 @@ type ERC721Options = {
 };
 declare const erc721: TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFixture>;
 
-export { ERC20FinalFixture, ERC721FinalFixture, ERC721Options, ERC721User, Test, TestSuite, TestSuiteFunc, TestToRun, User, erc20, erc721, recurse, runtests };
+export { type ERC20FinalFixture, type ERC721FinalFixture, type ERC721Options, type ERC721User, type Test, TestSuite, type TestSuiteFunc, type TestToRun, type User, erc20, erc721, recurse, runtests };
