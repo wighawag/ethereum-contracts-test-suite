@@ -221,7 +221,7 @@ export const erc721 = new TestSuite<ERC721Fixture, ERC721Options, ERC721FinalFix
 					const transferEvent = eventsMatching[0];
 					assert.equal(transferEvent.args && transferEvent.args[0], users[0].address);
 					assert.equal(transferEvent.args && transferEvent.args[1], ZeroAddress);
-					expect(transferEvent.args && transferEvent.args[2]).to.deep.equal(tokenId);
+					expect(transferEvent.args && transferEvent.args[2].toString()).to.deep.equal(tokenId);
 				});
 				it('burn result in ownerOf throwing', async function ({contract, mint, users}) {
 					const {tokenId} = await mint(users[0].address);
